@@ -1,0 +1,32 @@
+{
+  "variables": {
+    "scripts": "{{template_dir}}/scripts",
+    "os": "centos-7",
+    "gcp_project_id": "{{env `GCP_PROJECT_ID`}}",
+    "kubernetes_version": "1.16.3-0"
+  },
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "{{user `gcp_project_id`}}",
+      "source_image": "{{user `os`}}-v20191121",
+      "ssh_username": "centos",
+      "machine_type": "n2-standard-2",
+      "zone": "europe-west2-a"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer' | sudo -S env {{ .Vars }} {{ .Path }}",
+      "environment_vars": [
+        "PACKER_OS_IMAGE={{user `os`}}",
+        "PACKER_KUBERNETES_VERSION={{user `kubernetes_version`}}"
+      ],
+      "scripts": [
+        "{{user `scripts`}}/configure_base.sh",
+        "{{user `scripts`}}/configure_kubernetes.sh"
+      ]
+    }
+  ]
+}
